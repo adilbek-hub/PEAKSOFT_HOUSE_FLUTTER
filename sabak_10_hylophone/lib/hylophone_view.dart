@@ -11,6 +11,12 @@ class HulophoneView extends StatefulWidget {
 
 class _HulophoneViewState extends State<HulophoneView> {
   final audioPlayers = AudioPlayer();
+
+  List allSongs = [
+    'music_23494.mp3',
+    'music_25043.mp3',
+  ];
+  int index = 0;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -21,17 +27,20 @@ class _HulophoneViewState extends State<HulophoneView> {
         body: Column(
           children: [
             PianoKeys(
-              color: Colors.green,
-              text: 'Do',
-              onTap: () => audioPlayers.play(
-                AssetSource('nota1.mp3'),
-              ),
-            ),
+                color: Colors.green,
+                text: 'Do',
+                onTap: () async {
+                  if (audioPlayers.state == PlayerState.playing) {
+                    await audioPlayers.stop();
+                  }
+                  await audioPlayers.play(AssetSource(allSongs[index]));
+                }),
             PianoKeys(
               color: Colors.yellow,
               text: 'Re',
               onTap: () {
-                audioPlayers.play(AssetSource('nota2.mp3'));
+                audioPlayers.play(AssetSource('music_25043.mp3'));
+
                 print('on tap ishtedi');
               },
             ),

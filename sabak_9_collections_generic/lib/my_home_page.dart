@@ -27,7 +27,7 @@ class MyHomePage extends StatelessWidget {
                     children: [
                       Image.network(mapUsers[1] ?? 'Unknown User Image'),
                       Text(
-                        mapUsers[1.2] ?? 'Unknown User name',
+                        mapUsers[1.1] ?? 'Unknown User name',
                         style: TextStyle(
                           fontSize: 22.5,
                           fontWeight: FontWeight.bold,
