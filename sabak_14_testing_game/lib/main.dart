@@ -14,9 +14,11 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
+        scaffoldBackgroundColor: const Color(0xff363636),
         useMaterial3: true,
       ),
-      home: const MyHomePage(),
+      home: const MyHomePage('Тапшырма 7'),
     );
   }
 }
