@@ -10,26 +10,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int count = 0;
+  int index = 0;
   int tuuraJoop = 0;
   int tuuraEmesJoop = 0;
-  nextCount() {
-    setState(() => count++);
-    if (count == testList.length) {
-      showTestDialog(context);
-      count = 0;
+
+  List<bool> jooptor = [];
+  resultView(bool isTrue) {
+    if (testList[index].answer == isTrue) {
+      index++;
+      tuuraJoop++;
+    } else if (testList[index].answer == isTrue) {
+      tuuraEmesJoop++;
+      index++;
+    }
+
+    if (index > 4) {
+      index = 0;
       tuuraJoop = 0;
       tuuraEmesJoop = 0;
+      jooptor.clear();
     }
-    if (testList[count].answer) {
-      setState(() {
-        tuuraJoop++;
-      });
-    } else if (testList[count].answer) {
-      setState(() {
-        tuuraEmesJoop++;
-      });
-    }
+    setState(() {});
   }
 
   Future<void> showTestDialog(BuildContext context) {
@@ -70,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Text(
                 textAlign: TextAlign.center,
-                testList[count].question,
+                testList[index].question,
                 style: AppTextStyles.questionStyle,
               ),
               Column(
@@ -79,25 +80,24 @@ class _MyHomePageState extends State<MyHomePage> {
                     text: 'Туура',
                     backgroundColor: Colors.green,
                     onPressed: () {
-                      nextCount();
+                      resultView(true);
                     },
                   ),
                   CustomButton(
                     text: 'Туура эмес',
                     backgroundColor: Colors.red,
                     onPressed: () {
-                      nextCount();
+                      resultView(false);
                     },
                   ),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: List.generate(
-                        5,
-                        (index) => const Icon(
-                              Icons.done,
-                              color: Colors.green,
-                            )),
+                    children: jooptor
+                        .map((e) => e == true
+                            ? const Icon(Icons.close, color: Colors.red)
+                            : const Icon(Icons.done, color: Colors.green))
+                        .toList(),
                   )
                 ],
               )
@@ -124,7 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                tuuraEmesJoop.toString(),
+                tuuraJoop.toString(),
                 style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -134,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.white,
               ),
               Text(
-                tuuraJoop.toString(),
+                tuuraEmesJoop.toString(),
                 style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
