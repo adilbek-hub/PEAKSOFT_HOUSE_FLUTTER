@@ -4,7 +4,11 @@ import 'package:sabak_15_bmi_calculator/features/presentation/constants/app_text
 class MaleFemaleCard extends StatelessWidget {
   const MaleFemaleCard({
     super.key,
+    required this.text,
+    required this.icon,
   });
+  final String text;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +21,13 @@ class MaleFemaleCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            const Icon(
-              Icons.male,
+            Icon(
+              icon,
               size: 70,
               color: Colors.white,
             ),
             Text(
-              'male'.toUpperCase(),
+              text.toUpperCase(),
               style: AppTextStyles.bodyStyle,
             ),
           ],

@@ -10,7 +10,7 @@ class HeightCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 335,
+      width: MediaQuery.of(context).size.width,
       height: 176,
       child: Card(
         shadowColor: Colors.white,
