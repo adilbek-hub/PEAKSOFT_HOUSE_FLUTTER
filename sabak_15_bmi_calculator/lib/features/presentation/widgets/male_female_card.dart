@@ -6,9 +6,13 @@ class MaleFemaleCard extends StatelessWidget {
     super.key,
     required this.text,
     required this.icon,
+    required this.color,
+    this.onTap,
   });
   final String text;
   final IconData icon;
+  final void Function()? onTap;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +25,13 @@ class MaleFemaleCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Icon(
-              icon,
-              size: 70,
-              color: Colors.white,
+            IconButton(
+              onPressed: onTap,
+              icon: Icon(
+                icon,
+                size: 70,
+                color: color,
+              ),
             ),
             Text(
               text.toUpperCase(),

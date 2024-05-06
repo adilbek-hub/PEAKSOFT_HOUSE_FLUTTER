@@ -7,10 +7,12 @@ class WeightAgeCard extends StatelessWidget {
     required this.jazuu,
     this.koshuuBaskychy,
     this.kemituuBaskychy,
+    required this.text,
   });
   final String jazuu;
   final void Function()? koshuuBaskychy;
   final void Function()? kemituuBaskychy;
+  final String text;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -26,8 +28,8 @@ class WeightAgeCard extends StatelessWidget {
               jazuu.toUpperCase(),
               style: AppTextStyles.bodyStyle,
             ),
-            const Text(
-              '60',
+            Text(
+              text,
               style: AppTextStyles.numStyle,
             ),
             Row(
@@ -37,7 +39,7 @@ class WeightAgeCard extends StatelessWidget {
                   onPressed: kemituuBaskychy,
                   icon: const Icon(
                     Icons.remove_circle,
-                    color: Color(0xff5C5B5B),
+                    color: Color(0xffffffff),
                     size: 45,
                   ),
                 ),
@@ -45,7 +47,7 @@ class WeightAgeCard extends StatelessWidget {
                   onPressed: koshuuBaskychy,
                   icon: const Icon(
                     Icons.add_circle,
-                    color: Color(0xff5C5B5B),
+                    color: Color(0xffffffff),
                     size: 45,
                   ),
                 ),

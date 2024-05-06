@@ -4,9 +4,12 @@ import '../constants/app_text_styles.dart';
 
 class HeightCard extends StatelessWidget {
   const HeightCard({
+    required this.text,
+    required this.widget,
     super.key,
   });
-
+  final String text;
+  final Widget widget;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -22,22 +25,22 @@ class HeightCard extends StatelessWidget {
               'Height'.toUpperCase(),
               style: AppTextStyles.bodyStyle,
             ),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               textBaseline: TextBaseline.alphabetic,
               crossAxisAlignment: CrossAxisAlignment.baseline,
               children: [
                 Text(
-                  '180',
+                  text,
                   style: AppTextStyles.numStyle,
                 ),
-                Text(
+                const Text(
                   'cm',
                   style: AppTextStyles.titleStyle,
                 ),
               ],
             ),
-            Slider(min: 0, max: 150, value: 40, onChanged: (value) {}),
+            widget,
           ],
         ),
       ),
