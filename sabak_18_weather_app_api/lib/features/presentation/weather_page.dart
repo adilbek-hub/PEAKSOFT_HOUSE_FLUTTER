@@ -18,95 +18,118 @@ class _WeatherPageState extends State<WeatherPage> {
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
-    WeatherRepo().fetchData();
+    weatherRepo = WeatherRepo();
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 27.6),
-              child: Column(
-                children: [
-                  const SearchSettingWidget(),
-                  const SizedBox(height: 22.42),
-                  const SityNameDateWidget(),
-                  const TemperatureViewWidget(
-                    text: "25",
-                  ),
-                  const CardWidget(),
-                  const CardWidget(),
-                  const CardWidget(),
-                  const SizedBox(height: 27.6),
-                  const WeatherDaysWidget(),
-                  SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTickMarkColor: Colors.white,
-                      inactiveTickMarkColor: Colors.grey,
-                      thumbColor: Colors.red,
+          body: FutureBuilder(
+              future: weatherRepo?.fetchDataWithDio(),
+              builder: (context, sn) {
+                if (sn.hasError) {
+                  return Center(
+                    child: Text(
+                      sn.error.toString(),
                     ),
-                    child: Slider(
-                      mouseCursor: MouseCursor.defer,
-                      divisions: 2,
-                      label: scroll.round().toString(),
-                      min: 0,
-                      max: 3,
-                      value: scroll,
-                      onChanged: (value) {
-                        setState(() {
-                          scroll = value;
-                          print("VALUE мааниси: $value");
-                          print("scroll мааниси: $scroll");
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 15.52,
-            ),
-            SizedBox(
-              height: 100,
-              child: ListView.builder(
-                  itemCount: 10,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8.62,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(34.8),
-                        child: Container(
-                          width: 55.15,
-                          height: 98.99,
-                          color: Colors.white.withOpacity(0.3),
+                  );
+                } else if (sn.hasData) {
+                  double temp = sn.data!.temp - 273.15;
+                  return SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 27.6),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('data'),
-                              SvgPicture.asset(
-                                'assets/svg_images/icon1.svg',
-                                fit: BoxFit.cover,
+                              const SearchSettingWidget(),
+                              const SizedBox(height: 22.42),
+                              SityNameDateWidget(
+                                name: sn.data!.name,
                               ),
-                              const Text('data'),
+                              TemperatureViewWidget(
+                                text: temp.toStringAsFixed(1),
+                                main: sn.data!.main,
+                              ),
+                              const CardWidget(),
+                              const CardWidget(),
+                              const CardWidget(),
+                              const SizedBox(height: 27.6),
+                              const WeatherDaysWidget(),
+                              SliderTheme(
+                                data: SliderTheme.of(context).copyWith(
+                                  activeTickMarkColor: Colors.white,
+                                  inactiveTickMarkColor: Colors.grey,
+                                  thumbColor: Colors.red,
+                                ),
+                                child: Slider(
+                                  mouseCursor: MouseCursor.defer,
+                                  divisions: 2,
+                                  label: scroll.round().toString(),
+                                  min: 0,
+                                  max: 3,
+                                  value: scroll,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      scroll = value;
+                                      print("VALUE мааниси: $value");
+                                      print("scroll мааниси: $scroll");
+                                    });
+                                  },
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                      ),
-                    );
-                  }),
-            )
-          ],
-        ),
-      ),
+                        const SizedBox(
+                          height: 15.52,
+                        ),
+                        SizedBox(
+                          height: 100,
+                          child: ListView.builder(
+                              itemCount: 10,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8.62,
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(34.8),
+                                    child: Container(
+                                      width: 55.15,
+                                      height: 98.99,
+                                      color: Colors.white.withOpacity(0.3),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Text('data'),
+                                          SvgPicture.asset(
+                                            'assets/svg_images/icon1.svg',
+                                            fit: BoxFit.cover,
+                                          ),
+                                          const Text('data'),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                        )
+                      ],
+                    ),
+                  );
+                } else {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+              })),
     );
   }
 }
@@ -227,8 +250,10 @@ class TemperatureViewWidget extends StatelessWidget {
   const TemperatureViewWidget({
     super.key,
     required this.text,
+    required this.main,
   });
   final String text;
+  final String main;
 
   @override
   Widget build(BuildContext context) {
@@ -262,9 +287,9 @@ class TemperatureViewWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Text(
-                  'Rainy',
-                  style: TextStyle(
+                Text(
+                  main,
+                  style: const TextStyle(
                     color: Color(0xff303345),
                     fontSize: 24.17,
                     fontWeight: FontWeight.w400,
