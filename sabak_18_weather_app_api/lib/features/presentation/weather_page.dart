@@ -38,6 +38,7 @@ class _WeatherPageState extends State<WeatherPage> {
                   );
                 } else if (sn.hasData) {
                   double temp = sn.data!.temp - 273.15;
+
                   return SingleChildScrollView(
                     child: Column(
                       children: [
@@ -52,12 +53,25 @@ class _WeatherPageState extends State<WeatherPage> {
                                 name: sn.data!.name,
                               ),
                               TemperatureViewWidget(
-                                text: temp.toStringAsFixed(1),
+                                text: temp.toStringAsFixed(0),
                                 main: sn.data!.main,
+                                icon:
+                                    'https://openweathermap.org/img/wn/${sn.data!.icon}@4x.png',
                               ),
-                              const CardWidget(),
-                              const CardWidget(),
-                              const CardWidget(),
+                              CardWidget(
+                                image: 'assets/svg_images/humidity.svg',
+                                text: '${sn.data!.wind} km/h',
+                                text2: 'wind',
+                              ),
+                              CardWidget(
+                                image: 'assets/svg_images/wind.svg',
+                                text: '${sn.data!.humidity} %',
+                                text2: 'humidity',
+                              ),
+                              // CardWidget(
+                              //     image: 'assets/svg_images/umbrella.svg',
+                              //     text: sn.data!.wind.toString(),
+                              //     text2: ''),
                               const SizedBox(height: 27.6),
                               const WeatherDaysWidget(),
                               SliderTheme(
@@ -108,12 +122,12 @@ class _WeatherPageState extends State<WeatherPage> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          const Text('data'),
-                                          SvgPicture.asset(
-                                            'assets/svg_images/icon1.svg',
+                                          const Text('27.05'),
+                                          Image.network(
+                                            'https://openweathermap.org/img/wn/${sn.data!.icon}@4x.png',
                                             fit: BoxFit.cover,
                                           ),
-                                          const Text('data'),
+                                          Text('${temp.toStringAsFixed(0)}°C'),
                                         ],
                                       ),
                                     ),
@@ -199,8 +213,13 @@ class WeatherDaysWidget extends StatelessWidget {
 class CardWidget extends StatelessWidget {
   const CardWidget({
     super.key,
+    required this.image,
+    required this.text,
+    required this.text2,
   });
-
+  final String image;
+  final String text;
+  final String text2;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -220,11 +239,11 @@ class CardWidget extends StatelessWidget {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Row(
             children: [
-              Card(child: SvgPicture.asset('assets/svg_images/umbrella.svg')),
+              Card(child: SvgPicture.asset(image)),
               const SizedBox(width: 13.8),
-              const Text(
-                'RainFall',
-                style: TextStyle(
+              Text(
+                text2,
+                style: const TextStyle(
                   color: Color(0xff303345),
                   fontSize: 12.7,
                   fontWeight: FontWeight.w400,
@@ -232,9 +251,9 @@ class CardWidget extends StatelessWidget {
               ),
             ],
           ),
-          const Text(
-            '3cm',
-            style: TextStyle(
+          Text(
+            text,
+            style: const TextStyle(
               color: Color(0xff303345),
               fontSize: 12.7,
               fontWeight: FontWeight.w400,
@@ -251,15 +270,17 @@ class TemperatureViewWidget extends StatelessWidget {
     super.key,
     required this.text,
     required this.main,
+    required this.icon,
   });
   final String text;
   final String main;
+  final String icon;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SvgPicture.asset("assets/svg_images/cludy.svg"),
+        Image.network(icon),
         Column(
           children: [
             Column(
@@ -278,7 +299,7 @@ class TemperatureViewWidget extends StatelessWidget {
                       ),
                     ),
                     const Text(
-                      " \u2103",
+                      " °C",
                       style: TextStyle(
                         color: Color(0xff303345),
                         fontSize: 27.7,
