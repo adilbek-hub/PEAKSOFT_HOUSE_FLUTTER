@@ -76,9 +76,10 @@ class _WeatherPageState extends State<WeatherPage> {
                               const WeatherDaysWidget(),
                               SliderTheme(
                                 data: SliderTheme.of(context).copyWith(
-                                  activeTickMarkColor: Colors.white,
-                                  inactiveTickMarkColor: Colors.grey,
-                                  thumbColor: Colors.red,
+                                  trackHeight: 0.86,
+                                  thumbShape:
+                                      SquareThumbShape(thumbRadius: 12.0),
+                                  thumbColor: Colors.black,
                                 ),
                                 child: Slider(
                                   mouseCursor: MouseCursor.defer,
@@ -145,6 +146,45 @@ class _WeatherPageState extends State<WeatherPage> {
                 }
               })),
     );
+  }
+}
+
+class SquareThumbShape extends SliderComponentShape {
+  final double thumbRadius;
+
+  SquareThumbShape({this.thumbRadius = 8.0});
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(thumbRadius);
+  }
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final Paint paint = Paint()
+      ..color = sliderTheme.thumbColor ?? Colors.blue
+      ..style = PaintingStyle.fill;
+
+    final Rect thumbRect = Rect.fromCenter(
+      center: center,
+      width: 17.25,
+      height: 5.17,
+    );
+
+    context.canvas.drawRect(thumbRect, paint);
   }
 }
 
@@ -303,7 +343,7 @@ class TemperatureViewWidget extends StatelessWidget {
                       style: TextStyle(
                         color: Color(0xff303345),
                         fontSize: 27.7,
-                        fontWeight: FontWeight.w300,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ],
