@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:sabak_18_weather_app_api/features/data/weather_repo.dart';
+import 'package:sabak_18_weather_app_api/features/presentation/city_class.dart';
+import 'package:sabak_18_weather_app_api/features/presentation/search_delegate.dart';
 import 'package:sabak_18_weather_app_api/features/presentation/search_setting_widget.dart';
 import 'package:sabak_18_weather_app_api/features/presentation/widgets/city_name_date_widget.dart';
 
@@ -47,7 +49,76 @@ class _WeatherPageState extends State<WeatherPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 27.6),
                           child: Column(
                             children: [
-                              const SearchSettingWidget(),
+                              SearchSettingWidget(
+                                onTapSearch: () async {
+                                  showSearch(
+                                      context: context,
+                                      delegate: CustomSearchDelegate());
+                                },
+                                onTap: () {
+                                  Scaffold.of(context).showBottomSheet(
+                                    (BuildContext context) {
+                                      return Container(
+                                        height: 300,
+                                        color: const Color(0xff81d4fa),
+                                        child: Center(
+                                            child: ListView.builder(
+                                          itemCount: cityList.length,
+                                          itemBuilder: (context, index) {
+                                            final shaar = cityList[index];
+                                            return SizedBox(
+                                              height: 75,
+                                              child: InkWell(
+                                                splashColor: Colors.red,
+                                                onDoubleTap: () {
+                                                  print('TTTT');
+                                                },
+                                                child: Card(
+                                                  color: Colors.white,
+                                                  child: Center(
+                                                    child: ListTile(
+                                                      leading: Text(
+                                                        shaar.city,
+                                                        style: const TextStyle(
+                                                          fontSize: 25,
+                                                          fontWeight:
+                                                              FontWeight.w800,
+                                                        ),
+                                                      ),
+                                                      title: const Text(
+                                                          'Кыргызстан'),
+                                                      trailing: SizedBox(
+                                                          height: 50,
+                                                          width: 50,
+                                                          child: CircleAvatar(
+                                                            radius: 56,
+                                                            backgroundColor:
+                                                                const Color(
+                                                                    0xff16C4EA),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(
+                                                                      8), // Border radius
+                                                              child: ClipOval(
+                                                                  child: Image
+                                                                      .network(shaar
+                                                                          .emblems)),
+                                                            ),
+                                                          )),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        )),
+                                      );
+                                    },
+                                  );
+                                  print('hello');
+                                },
+                              ),
                               const SizedBox(height: 22.42),
                               SityNameDateWidget(
                                 name: sn.data!.name,
