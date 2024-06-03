@@ -1,10 +1,13 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:sabak_18_weather_app_api/features/data/weather_repo.dart';
+import 'package:sabak_18_weather_app_api/features/constants/api_key.dart';
+import 'package:sabak_18_weather_app_api/features/data/model.dart';
 import 'package:sabak_18_weather_app_api/features/presentation/city_class.dart';
 import 'package:sabak_18_weather_app_api/features/presentation/search_delegate.dart';
-import 'package:sabak_18_weather_app_api/features/presentation/search_setting_widget.dart';
 import 'package:sabak_18_weather_app_api/features/presentation/widgets/city_name_date_widget.dart';
+
+import 'search_setting_widget.dart';
 
 class WeatherPage extends StatefulWidget {
   const WeatherPage({super.key});
@@ -16,206 +19,213 @@ class WeatherPage extends StatefulWidget {
 class _WeatherPageState extends State<WeatherPage> {
   bool isTrue = true;
   double scroll = 0;
-  WeatherRepo? weatherRepo;
+  WeatherModel? weatherModel;
+
+  void getCityName([String? cityName]) async {
+    final dio = Dio();
+    final response = await dio.get(ApiKey.cityName(cityName ?? 'Бишкек'));
+    if (response.statusCode == 200) {
+      double windSpeed = response.data['wind']['speed'].toDouble();
+      weatherModel = WeatherModel(
+        id: response.data['weather'][0]['id'],
+        main: response.data['weather'][0]['main'],
+        description: response.data['weather'][0]['description'],
+        icon: response.data['weather'][0]['icon'],
+        temp: response.data['main']['temp'],
+        name: response.data['name'],
+        wind: windSpeed,
+        humidity: response.data['main']['humidity'],
+      );
+    }
+    setState(() {});
+  }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    weatherRepo = WeatherRepo();
+    getCityName();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          body: FutureBuilder(
-              future: weatherRepo?.fetchDataWithDio(),
-              builder: (context, sn) {
-                if (sn.hasError) {
-                  return Center(
-                    child: Text(
-                      sn.error.toString(),
-                    ),
-                  );
-                } else if (sn.hasData) {
-                  double temp = sn.data!.temp - 273.15;
-
-                  return SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 20),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 27.6),
-                          child: Column(
-                            children: [
-                              SearchSettingWidget(
-                                onTapSearch: () async {
-                                  showSearch(
-                                      context: context,
-                                      delegate: CustomSearchDelegate());
-                                },
-                                onTap: () {
-                                  Scaffold.of(context).showBottomSheet(
-                                    (BuildContext context) {
-                                      return Container(
-                                        height: 300,
-                                        color: const Color(0xff81d4fa),
-                                        child: Center(
-                                            child: ListView.builder(
-                                          itemCount: cityList.length,
-                                          itemBuilder: (context, index) {
-                                            final shaar = cityList[index];
-                                            return SizedBox(
-                                              height: 75,
-                                              child: InkWell(
-                                                splashColor: Colors.red,
-                                                onDoubleTap: () {
-                                                  print('TTTT');
-                                                },
-                                                child: Card(
-                                                  color: Colors.white,
-                                                  child: Center(
-                                                    child: ListTile(
-                                                      leading: Text(
-                                                        shaar.city,
-                                                        style: const TextStyle(
-                                                          fontSize: 25,
-                                                          fontWeight:
-                                                              FontWeight.w800,
-                                                        ),
+          body: weatherModel == null
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25.6),
+                        child: Column(
+                          children: [
+                            SearchSettingWidget(
+                              onTapSearch: () async {
+                                showSearch(
+                                    context: context,
+                                    delegate: CustomSearchDelegate());
+                              },
+                              onTap: () {
+                                showModalBottomSheet<void>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Container(
+                                      height: 300,
+                                      color: const Color(0xff81d4fa),
+                                      child: Center(
+                                          child: ListView.builder(
+                                        itemCount: cityList.length,
+                                        itemBuilder: (context, index) {
+                                          final shaar = cityList[index];
+                                          return SizedBox(
+                                            height: 75,
+                                            child: InkWell(
+                                              splashColor: Colors.red,
+                                              onTap: () {
+                                                setState(() {
+                                                  weatherModel = null;
+                                                });
+                                                getCityName(shaar.city);
+                                                Navigator.pop(context);
+                                              },
+                                              child: Card(
+                                                color: Colors.white,
+                                                child: Center(
+                                                  child: ListTile(
+                                                    leading: Text(
+                                                      shaar.city,
+                                                      style: const TextStyle(
+                                                        fontSize: 25,
+                                                        fontWeight:
+                                                            FontWeight.w800,
                                                       ),
-                                                      title: const Text(
-                                                          'Кыргызстан'),
-                                                      trailing: SizedBox(
-                                                          height: 50,
-                                                          width: 50,
-                                                          child: CircleAvatar(
-                                                            radius: 56,
-                                                            backgroundColor:
-                                                                const Color(
-                                                                    0xff16C4EA),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(
-                                                                      8), // Border radius
-                                                              child: ClipOval(
-                                                                  child: Image
-                                                                      .network(shaar
-                                                                          .emblems)),
-                                                            ),
-                                                          )),
                                                     ),
+                                                    title: const Text(
+                                                        'Кыргызстан'),
+                                                    trailing: SizedBox(
+                                                        height: 50,
+                                                        width: 50,
+                                                        child: CircleAvatar(
+                                                          radius: 56,
+                                                          backgroundColor:
+                                                              const Color(
+                                                                  0xff16C4EA),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(
+                                                                    8), // Border radius
+                                                            child: ClipOval(
+                                                                child: Image
+                                                                    .network(shaar
+                                                                        .emblems)),
+                                                          ),
+                                                        )),
                                                   ),
                                                 ),
                                               ),
-                                            );
-                                          },
-                                        )),
-                                      );
-                                    },
-                                  );
-                                  print('hello');
+                                            ),
+                                          );
+                                        },
+                                      )),
+                                    );
+                                  },
+                                );
+                                print('hello');
+                              },
+                            ),
+                            const SizedBox(height: 22.42),
+                            SityNameDateWidget(
+                              name: weatherModel!.name,
+                            ),
+                            TemperatureViewWidget(
+                              text: '${(weatherModel!.temp.toInt()) - 273} °C',
+                              main: weatherModel!.main,
+                              icon:
+                                  'https://openweathermap.org/img/wn/${weatherModel!.icon}@4x.png',
+                            ),
+                            CardWidget(
+                              image: 'assets/svg_images/humidity.svg',
+                              text: '${weatherModel!.wind} km/h',
+                              text2: 'wind',
+                            ),
+                            CardWidget(
+                              image: 'assets/svg_images/wind.svg',
+                              text: '${weatherModel!.humidity} %',
+                              text2: 'humidity',
+                            ),
+                            // CardWidget(
+                            //     image: 'assets/svg_images/umbrella.svg',
+                            //     text: sn.data!.wind.toString(),
+                            //     text2: ''),
+                            const SizedBox(height: 27.6),
+                            const WeatherDaysWidget(),
+                            SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                trackHeight: 0.86,
+                                thumbShape: SquareThumbShape(thumbRadius: 12.0),
+                                thumbColor: Colors.black,
+                              ),
+                              child: Slider(
+                                mouseCursor: MouseCursor.defer,
+                                divisions: 2,
+                                label: scroll.round().toString(),
+                                min: 0,
+                                max: 3,
+                                value: scroll,
+                                onChanged: (value) {
+                                  setState(() {
+                                    scroll = value;
+                                    print("VALUE мааниси: $value");
+                                    print("scroll мааниси: $scroll");
+                                  });
                                 },
                               ),
-                              const SizedBox(height: 22.42),
-                              SityNameDateWidget(
-                                name: sn.data!.name,
-                              ),
-                              TemperatureViewWidget(
-                                text: temp.toStringAsFixed(0),
-                                main: sn.data!.main,
-                                icon:
-                                    'https://openweathermap.org/img/wn/${sn.data!.icon}@4x.png',
-                              ),
-                              CardWidget(
-                                image: 'assets/svg_images/humidity.svg',
-                                text: '${sn.data!.wind} km/h',
-                                text2: 'wind',
-                              ),
-                              CardWidget(
-                                image: 'assets/svg_images/wind.svg',
-                                text: '${sn.data!.humidity} %',
-                                text2: 'humidity',
-                              ),
-                              // CardWidget(
-                              //     image: 'assets/svg_images/umbrella.svg',
-                              //     text: sn.data!.wind.toString(),
-                              //     text2: ''),
-                              const SizedBox(height: 27.6),
-                              const WeatherDaysWidget(),
-                              SliderTheme(
-                                data: SliderTheme.of(context).copyWith(
-                                  trackHeight: 0.86,
-                                  thumbShape:
-                                      SquareThumbShape(thumbRadius: 12.0),
-                                  thumbColor: Colors.black,
-                                ),
-                                child: Slider(
-                                  mouseCursor: MouseCursor.defer,
-                                  divisions: 2,
-                                  label: scroll.round().toString(),
-                                  min: 0,
-                                  max: 3,
-                                  value: scroll,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      scroll = value;
-                                      print("VALUE мааниси: $value");
-                                      print("scroll мааниси: $scroll");
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(
-                          height: 15.52,
-                        ),
-                        SizedBox(
-                          height: 100,
-                          child: ListView.builder(
-                              itemCount: 10,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8.62,
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(34.8),
-                                    child: Container(
-                                      width: 55.15,
-                                      height: 98.99,
-                                      color: Colors.white.withOpacity(0.3),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Text('27.05'),
-                                          Image.network(
-                                            'https://openweathermap.org/img/wn/${sn.data!.icon}@4x.png',
-                                            fit: BoxFit.cover,
-                                          ),
-                                          Text('${temp.toStringAsFixed(0)}°C'),
-                                        ],
-                                      ),
+                      ),
+                      const SizedBox(
+                        height: 15.52,
+                      ),
+                      SizedBox(
+                        height: 100,
+                        child: ListView.builder(
+                            itemCount: 10,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8.62,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(34.8),
+                                  child: Container(
+                                    width: 55.15,
+                                    height: 98.99,
+                                    color: Colors.white.withOpacity(0.3),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Text('27.05'),
+                                        Image.network(
+                                          'https://openweathermap.org/img/wn/${weatherModel!.icon}@4x.png',
+                                          fit: BoxFit.cover,
+                                        ),
+                                        const Text('${'dvdvd'}°C'),
+                                      ],
                                     ),
                                   ),
-                                );
-                              }),
-                        )
-                      ],
-                    ),
-                  );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              })),
+                                ),
+                              );
+                            }),
+                      )
+                    ],
+                  ),
+                )),
     );
   }
 }
@@ -397,7 +407,7 @@ class TemperatureViewWidget extends StatelessWidget {
             Column(
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   textBaseline: TextBaseline.alphabetic,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -405,18 +415,18 @@ class TemperatureViewWidget extends StatelessWidget {
                       text,
                       style: const TextStyle(
                         color: Color(0xff303345),
-                        fontSize: 74.17,
+                        fontSize: 50.17,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const Text(
-                      " °C",
-                      style: TextStyle(
-                        color: Color(0xff303345),
-                        fontSize: 27.7,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    // const Text(
+                    //  ,
+                    //   style: TextStyle(
+                    //     color: Color(0xff303345),
+                    //     fontSize: 27.7,
+                    //     fontWeight: FontWeight.w800,
+                    //   ),
+                    // ),
                   ],
                 ),
                 Text(
